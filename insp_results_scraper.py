@@ -36,7 +36,7 @@ def scraper(data):
             break
 
 def export_to_csv(data, ofile):
-    f = open(ofile, 'wt')
+    f = open("data/" + ofile, 'wt')
     try:
         fieldnames = ('address', 'contractor', 'permit_no', 'insp_type', 'result', 'comment', 'date')
         writer = csv.DictWriter(f, fieldnames=fieldnames, delimiter='|')
