@@ -38,12 +38,20 @@ def scraper(data):
 def export_to_csv(data, ofile):
     f = open("data/" + ofile, 'wt')
     try:
-        fieldnames = ('address', 'contractor', 'permit_no', 'insp_type', 'result', 'comment', 'date')
+        fieldnames = ('location', 'contractor', 'permit_no', 'insp_type', 'result', 'comment', 'date')
         writer = csv.DictWriter(f, fieldnames=fieldnames, delimiter='|')
         headers = {}
         for r in data:
-            writer.writerow({'address':r['address'], 'contractor':r['contractor'], 'permit_no':r['permit_no'], \
-                             'insp_type':r['insp_type'], 'result':r['result'], 'comment':r['comment'], 'date':r['date']})
+            location   = r['address'].title()
+            contractor = r['contractor'].title()
+            permit_no  = r['permit_no']
+            insp_type  = r['insp_type'].title()
+            result     = r['result']
+            comment    = r['comment']
+            insp_date  = r['date']
+
+            writer.writerow({'location':location, 'contractor':contractor, 'permit_no':permit_no, \
+                             'insp_type':insp_type, 'result':result, 'comment':comment, 'date':insp_date})
     finally:
         f.close()
 
