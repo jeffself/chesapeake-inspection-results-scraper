@@ -2,7 +2,7 @@ import sys, os
 import urllib, urllib2
 from bs4 import BeautifulSoup
 import csv
-from datetime import date
+from datetime import datetime, date
 
 def scraper(data):
     """We are getting the inspection results data from the City of 
@@ -48,7 +48,7 @@ def export_to_csv(data, ofile):
             insp_type  = r['insp_type'].title()
             result     = r['result']
             comment    = r['comment']
-            insp_date  = r['date']
+            insp_date  = str(datetime.strptime(r['date'], '%m/%d/%Y'))[:10]
 
             writer.writerow({'location':location, 'contractor':contractor, 'permit_no':permit_no, \
                              'insp_type':insp_type, 'result':result, 'comment':comment, 'date':insp_date})
