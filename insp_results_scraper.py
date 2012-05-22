@@ -21,15 +21,25 @@ def scraper(data):
             rows = t.findAll('tr')[1:]
             for row in rows:
                 result_id = row.findAll('td')[0].contents[0]
-                address = str(int(row.findAll('td')[1].contents[0])) + " " + row.findAll('td')[2].contents[0].strip()
+                location = str(int(row.findAll('td')[1].contents[0])) + " " + \
+                                   row.findAll('td')[2].contents[0].strip()
                 contractor = row.findAll('td')[3].contents[0].strip()
-                permit_no = row.findAll('td')[4].contents[0].strip()
-                insp_type = row.findAll('td')[5].contents[0].strip()
+                permit_number = row.findAll('td')[4].contents[0].strip()
+                inspection_type = row.findAll('td')[5].contents[0].strip()
                 result = row.findAll('td')[6].contents[0].strip()
-                comment = row.findAll('td')[7].contents[0].strip()
-                date = row.findAll('td')[8].contents[0].strip()
-                record = {"address": address, "contractor": contractor, "permit_no": permit_no, "insp_type": insp_type, "result": result, "comment": comment, "date": date}
+                comments = row.findAll('td')[7].contents[0].strip()
+                inspection_date = row.findAll('td')[8].contents[0].strip()
+
+                record = {"location": location, 
+                          "contractor": contractor, 
+                          "permit_number": permit_number, 
+                          "inspection_type": inspection_type, 
+                          "result": result, 
+                          "comments": comments, 
+                          "inspection_date": inspection_date}
+
                 data.append(record)
+
             startrow += 50
         except:
             print "Invalid URL"
@@ -38,20 +48,41 @@ def scraper(data):
 def export_to_csv(data, ofile):
     f = open("data/" + ofile, 'wt')
     try:
-        fieldnames = ('location', 'contractor', 'permit_no', 'insp_type', 'result', 'comment', 'date')
-        writer = csv.DictWriter(f, fieldnames=fieldnames, delimiter='|')
-        headers = {}
-        for r in data:
-            location   = r['address'].title()
-            contractor = r['contractor'].title()
-            permit_no  = r['permit_no']
-            insp_type  = r['insp_type'].title()
-            result     = r['result']
-            comment    = r['comment']
-            insp_date  = str(datetime.strptime(r['date'], '%m/%d/%Y'))[:10]
+        fieldnames = ('location',
+                      'contractor',
+                      'permit_number',
+                      'inspection_type',
+                      'result',
+                      'comments',
+                      'inspection_date')
 
-            writer.writerow({'location':location, 'contractor':contractor, 'permit_no':permit_no, \
-                             'insp_type':insp_type, 'result':result, 'comment':comment, 'date':insp_date})
+        headers = {"location",
+                   "contractor",
+                   "permit_number",
+                   "inspection_type",
+                   "result",
+                   "comments",
+                   "inspection_date"}
+
+        writer = csv.DictWriter(f, headers=headers, fieldnames=fieldnames, delimiter='|')
+
+        for r in data:
+            location         = r['location'].title()
+            contractor       = r['contractor'].title()
+            permit_number    = r['permit_number']
+            inspection_type  = r['inspection_type'].title()
+            result           = r['result']
+            comments         = r['comments']
+            inspection_date  = str(datetime.strptime(r['inspection_date'], \
+                                                     '%m/%d/%Y'))[:10]
+
+            writer.writerow({'location':location,
+                             'contractor':contractor,
+                             'permit_number':permit_number,
+                             'inspection_type':inspection_type,
+                             'result':result,
+                             'comments':comments,
+                             'inspection_date':inspection_date})
     finally:
         f.close()
 
