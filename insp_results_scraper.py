@@ -56,24 +56,22 @@ def export_to_csv(data, ofile):
                       'comments',
                       'inspection_date')
 
-        headers = {"location",
-                   "contractor",
-                   "permit_number",
-                   "inspection_type",
-                   "result",
-                   "comments",
-                   "inspection_date"}
+        headers = {}
 
-        writer = csv.DictWriter(f, headers=headers, fieldnames=fieldnames, delimiter='|')
+        writer = csv.DictWriter(f, fieldnames=fieldnames, delimiter='|')
 
-        for r in data:
-            location         = r['location'].title()
-            contractor       = r['contractor'].title()
-            permit_number    = r['permit_number']
-            inspection_type  = r['inspection_type'].title()
-            result           = r['result']
-            comments         = r['comments']
-            inspection_date  = str(datetime.strptime(r['inspection_date'], \
+        for n in writer.fieldnames:
+            headers[n] = n
+        writer.writerow(headers)
+
+        for row in data:
+            location         = row['location'].title()
+            contractor       = row['contractor'].title()
+            permit_number    = row['permit_number']
+            inspection_type  = row['inspection_type'].title()
+            result           = row['result']
+            comments         = row['comments']
+            inspection_date  = str(datetime.strptime(row['inspection_date'], \
                                                      '%m/%d/%Y'))[:10]
 
             writer.writerow({'location':location,
@@ -91,7 +89,8 @@ def get_url(startrow):
 
 def main():
     today = date.today()
-    ofile = "chesapeake_inspection_results_" + str(today.year) + "-" + str(today.month) + "-" + str(today.day) + ".csv"
+    ofile = "chesapeake_inspection_results_" + str(today.year) + "-" + \
+                str(today.month) + "-" + str(today.day) + ".csv"
     data = []
     scraper(data)
     export_to_csv(data, ofile)
