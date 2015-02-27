@@ -1,4 +1,5 @@
-chesapeake-inspection-results-scraper
-=====================================
+City of Chesapeake Inspection Results Scraper
+=============================================
 
-This app scrapes the City of Chesapeake's Inspection Results app and stores the data in a CSV file
+This app scrapes the City of Chesapeake's Inspection Results website and stores
+the data in the following formats: CSV, JSON
