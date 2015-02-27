@@ -2,9 +2,10 @@
 """Scraper for City of Chesapeake Inspection Results"""
 
 import sys
-import urllib
+import requests
 from bs4 import BeautifulSoup
 import csv
+import json
 from datetime import datetime, date
 
 
@@ -13,13 +14,12 @@ def scraper(data):
        Chesapeake's inspection statuss website using BeautifulSoup. Each <td>
        in the <tr> is saved in a python dictionary. Each <tr> is saved in
        an array."""
-
     startrow = 1
     while startrow < 1500:
         url = get_url(startrow)
         try:
-            html = urllib.urlopen(url).read()
-            soup = BeautifulSoup(html)
+            html = requests.get(url)
+            soup = BeautifulSoup(html.text)
 
             t = soup.findAll('table')[1]
             rows = t.findAll('tr')[1:]
@@ -46,12 +46,20 @@ def scraper(data):
 
             startrow += 50
         except:
-            print "Invalid URL"
+            print("Invalid URL")
             break
 
 
-def export_to_csv(data, ofile):
-    f = open("data/" + ofile, 'wt')
+def export_to_json(data, jsonfile):
+    try:
+        f = open("data/" + jsonfile, 'wt')
+        json.dump(data, f, sort_keys=True, indent=4, separators=(',', ': '))
+    finally:
+        f.close()
+
+
+def export_to_csv(data, csvfile):
+    f = open("data/" + csvfile, 'wt')
     try:
         fieldnames = ('location',
                       'contractor',
@@ -61,19 +69,19 @@ def export_to_csv(data, ofile):
                       'comments',
                       'inspection_date')
 
-        headers = {}
+        #headers = {}
 
         writer = csv.DictWriter(f, fieldnames=fieldnames, delimiter='|')
 
-        for n in writer.fieldnames:
-            headers[n] = n
-        writer.writerow(headers)
+        #for n in writer.fieldnames:
+        #    headers[n] = n
+        #writer.writerow(headers)
 
         for row in data:
-            location = row['location'].title()
-            contractor = row['contractor'].title()
+            location = row['location'].upper()
+            contractor = row['contractor'].upper()
             permit_number = row['permit_number']
-            inspection_type = row['inspection_type'].title()
+            inspection_type = row['inspection_type'].upper()
             status = row['status']
             comments = row['comments']
             inspection_date = str(datetime.strptime(row['inspection_date'],
@@ -96,14 +104,17 @@ def get_url(startrow):
 
 def main():
     today = date.today()
-    ofile = "chesapeake_inspection_results_" + str(today.year) + "-" + \
-            str(today.month) + "-" + str(today.day) + ".csv"
+    csvfile = "chesapeake_inspection_results_" + str(today.year) + "-" + \
+        str(today.month) + "-" + str(today.day) + ".csv"
+    jsonfile = "chesapeake_inspection_results_" + str(today.year) + "-" + \
+        str(today.month) + "-" + str(today.day) + ".json"
     data = []
     scraper(data)
-    export_to_csv(data, ofile)
+    export_to_csv(data, csvfile)
+    export_to_json(data, jsonfile)
 
     if len(data) > 0:
-        print "There are %d inspection results today." % len(data)
+        print("There are %d inspection results today." % len(data))
 
 if __name__ == '__main__':
     main()
