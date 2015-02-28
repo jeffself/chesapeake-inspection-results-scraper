@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Scraper for City of Chesapeake Inspection Results"""
 
-import sys
+import io
 import requests
 from bs4 import BeautifulSoup
 import csv
@@ -24,7 +24,6 @@ def scraper(data):
             t = soup.findAll('table')[1]
             rows = t.findAll('tr')[1:]
             for row in rows:
-                status_id = row.findAll('td')[0].contents[0]
                 location = str(int(row.findAll('td')[1].contents[0])) + " " \
                   + row.findAll('td')[2].contents[0].strip()
                 contractor = row.findAll('td')[3].contents[0].strip()
@@ -52,8 +51,9 @@ def scraper(data):
 
 def export_to_json(data, jsonfile):
     try:
-        f = open("data/" + jsonfile, 'wt')
-        json.dump(data, f, sort_keys=True, indent=4, separators=(',', ': '))
+        with io.open("data/" + jsonfile, 'w', encoding='utf8') as f:
+            json.dump(data, f, ensure_ascii=False, sort_keys=True, indent=4,
+                      separators=(',', ': '))
     finally:
         f.close()
 
@@ -69,13 +69,7 @@ def export_to_csv(data, csvfile):
                       'comments',
                       'inspection_date')
 
-        #headers = {}
-
         writer = csv.DictWriter(f, fieldnames=fieldnames, delimiter='|')
-
-        #for n in writer.fieldnames:
-        #    headers[n] = n
-        #writer.writerow(headers)
 
         for row in data:
             location = row['location'].upper()
